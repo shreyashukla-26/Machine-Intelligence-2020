@@ -86,9 +86,13 @@ def sigmoid_der(x):
 if __name__ == '__main__':
     obj = NN()
 
-    # Deleting rows with empty values
     df = pd.read_csv("LBW_Dataset.csv")
+ 
+    # Deleting rows with empty values
     df = df.dropna(how='any',axis=0)
+    
+    #Replacing missing values with mean
+    #df.fillna(df.mean(), inplace=True)
 
     # Train - Test
     x = df[['Community','Age','Weight','Delivery phase','HB','IFA','BP','Education','Residence']]
@@ -145,7 +149,7 @@ if __name__ == '__main__':
 
     for epoch in range(200000):
 
-        # feedforward
+        # Forward Propogation
         zh = np.dot(x_train, wh)
         ah = sigmoid(zh)
         #print(zh,ah)
@@ -155,7 +159,7 @@ if __name__ == '__main__':
         #print(zo,ao)
 
 
-        # Phase1 =======================
+        # Backpropogation 1
         error_out = ((1 / 2) * (np.power((ao - x_train), 2)))
         #print(error_out.sum())
 
@@ -166,7 +170,7 @@ if __name__ == '__main__':
         dcost_wo = np.dot(dzo_dwo.T, dcost_dao * dao_dzo)
 
 
-        # Phase 2 =======================
+        # Backpropogation 2
 
         # dcost_w1 = dcost_dah * dah_dzh * dzh_dw1
         # dcost_dah = dcost_dzo * dzo_dah
