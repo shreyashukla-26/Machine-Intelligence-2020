@@ -2,8 +2,16 @@
 Design of a Neural Network from scratch
 
 *************<IMP>*************
-Mention hyperparameters used and describe functionality in detail in this space
-- carries 1 mark
+Mention hyperparameters used and describe functionality in detail in this space - carries 1 mark
+
+Input Layer - 9 neurons
+1 Hidden Layer - 4 neurons
+Output Layer - 1 neuron
+Weight - (9 cross 4 matrix) and (4 cross 1 matrix)
+Bias - haven't included bias but it's supposd to be there (supposed to be a matrix as mentioned in the pdf)
+Activation fucntion - Sigmoid for all neurons
+Loss function - using RMSE for error (If that's what they mean by Loss function)
+
 '''
 
 import pandas as pd
