@@ -35,7 +35,7 @@ class NN:
 
 		return yhat
 
-	def CM(y_test,y_test_obs):
+	def CM(self,y_test,y_test_obs):
 		'''
 		Prints confusion matrix
 		y_test is list of y values in the test dataset
