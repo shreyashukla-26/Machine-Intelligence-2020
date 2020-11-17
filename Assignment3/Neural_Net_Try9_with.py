@@ -14,11 +14,11 @@ class NN():
 
         np.random.seed(57)
 
-        # initialise weights
+        # initialise weights - He initialisation
         self.weights = {
-            'W1':np.random.rand(hidden_1, input_layer),
-            'W2':np.random.rand(hidden_2, hidden_1),
-            'W3':np.random.rand(output_layer, hidden_2)
+            'W1':np.random.rand(hidden_1, input_layer) * np.sqrt(2. / hidden_1) * 2,
+            'W2':np.random.rand(hidden_2, hidden_1) * np.sqrt(2. / hidden_2) * 2,
+            'W3':np.random.rand(output_layer, hidden_2)  * np.sqrt(2. / output_layer) * 2
         }
 
         # initialise bias
@@ -33,7 +33,6 @@ class NN():
     def datapreprocessing(self, df):
 
         '''Binary threshold on Weight column'''
-        
         # Normalising the 'Weight' column to obtain it's median
         temp_df = pd.read_csv("LBW_Dataset.csv")
         scaler = StandardScaler().fit(temp_df[['Weight']])
