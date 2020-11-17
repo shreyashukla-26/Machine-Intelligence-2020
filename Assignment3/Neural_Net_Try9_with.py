@@ -8,18 +8,20 @@ import math
 class NN():
     #initialise hyperparameters
     def __init__(self, input_layer, hidden_1, hidden_2, output_layer, iterations=100, learning_rate=0.5):
-        
+
         self.iterations = iterations
         self.learning_rate = learning_rate
 
         np.random.seed(57)
 
+        # initialise weights
         self.weights = {
-            'W1':np.random.rand(hidden_1, input_layer), 
-            'W2':np.random.rand(hidden_2, hidden_1), 
+            'W1':np.random.rand(hidden_1, input_layer),
+            'W2':np.random.rand(hidden_2, hidden_1),
             'W3':np.random.rand(output_layer, hidden_2)
         }
 
+        # initialise bias
         self.bias = {
             'BO': np.random.rand(),
             'B1': np.random.rand(),
@@ -30,36 +32,40 @@ class NN():
     #Function to pre-process the data
     def datapreprocessing(self, df):
 
-        temp_df = pd.read_csv("C:\\Users\\hp\\Desktop\\Studies\\5th Sem\\Machine Intelligence\\Machine-Intelligence-2020-main\\Assignment3\\LBW_Dataset.csv")
+        '''Binary threshold on Weight column'''
+        # Normalising the 'Weight' column to obtain it's median
+        temp_df = pd.read_csv("LBW_Dataset.csv")
         scaler = StandardScaler().fit(temp_df[['Weight']])
         temp_df[['Weight']] = scaler.transform(temp_df[['Weight']])
 
+        # Applying a binary threshold of 33 on the 'Weight' column
         for i in range(len(df)):
+            # Replacing NULL values with the ceil of median of the original normalized 'Weight' column
             if(pd.isnull(df['Weight'][i])):
                 df['Weight'][i] = math.ceil(temp_df['Weight'].median())
-
+            # Assigning 1 to values greater than 33
             elif(df['Weight'][i] > 33):
                 df['Weight'][i] = 1
-
+            # Assigning 1 to values lesser than or equal to 33
             else:
                 df['Weight'][i] = 0
 
 
         # Replace all Nan values with the median values of the columns
         df.fillna(df.median(), inplace=True)
-        
-        # Upsampling to handle the Imbalanced Classes
-        
+
+        '''Upsampling to handle the Imbalanced Classes'''
+
         # Split the dataframe based on the classes
         df_majority = df[df.Result==1]
         df_minority = df[df.Result==0]
-        
+
         # Use resampling on the minority class to create more records for the same.
         df_minority_upsampled = resample(df_minority,
                                         replace=True,
                                         n_samples=72,
                                         random_state=42)
-        
+
         # Concatenate the dataframes of the majority class and upsampled minority class. The two classes are now equally represented
         global df_upsampled
         df_upsampled = pd.concat([df_majority, df_minority_upsampled])
@@ -78,15 +84,15 @@ class NN():
         #iterating for the specified number of epochs
         for iteration in range(self.iterations):
             for x,y in zip(x_train, y_train):
-                
+
                 weights = self.weights
                 bias = self.bias
-                
+
                 '''Forward Propagation'''
 
                 # input layer to hidden layer 1
                 # z1 = x * weight1 + bias1
-                # a1 = sigmoid(z1) 
+                # a1 = sigmoid(z1)
                 weights['Z1'] = np.dot(weights["W1"], x) + bias['BO']
                 weights['A1'] = self.sigmoid(weights['Z1'])
 
@@ -106,7 +112,7 @@ class NN():
                 predicted = weights['A3']
 
                 '''Back Propagation'''
-            
+
                 #Dictionary to store differential of weights wrt error
                 delta_w = {}
 
@@ -129,17 +135,17 @@ class NN():
                 for key, value in delta_w.items():
                     self.weights[key] -= self.learning_rate * value
 
-        
+
             print("Epoch :",iteration+1)
-            
-            
+
+
     # Predict using the fitted model
     def predict(self, x_val, y_val):
-        
+
         predictions = []
         weights = self.weights
         bias = self.bias
-        
+
         for x, y in zip(x_val, y_val):
 
             # input layer to hidden layer 1
@@ -193,12 +199,12 @@ class NN():
                 fp=fp+1
             if(y_test[i]==0 and y_test_obs[i]==1):
                 fn=fn+1
-                
+
         cm[0][0]=tn
         cm[0][1]=fp
         cm[1][0]=fn
         cm[1][1]=tp
-        
+
         p= tp/(tp+fp)
         r=tp/(tp+fn)
         f1=(2*p*r)/(p+r)
@@ -217,7 +223,7 @@ class NN():
 obj = NN(6, 3, 3, 1)
 
 # Read the dataset
-df = pd.read_csv("C:\\Users\\hp\\Desktop\\Studies\\5th Sem\\Machine Intelligence\\Machine-Intelligence-2020-main\\Assignment3\\LBW_Dataset.csv")
+df = pd.read_csv("LBW_Dataset.csv")
 
 # Preprocess the data
 obj.datapreprocessing(df)
@@ -249,4 +255,3 @@ print("\n-----------------------------")
 print("\nTest Data")
 obj.predict(x_test, y_test)
 print("\n-----------------------------")
-
