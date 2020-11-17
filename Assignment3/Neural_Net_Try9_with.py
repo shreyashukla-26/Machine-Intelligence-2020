@@ -47,18 +47,22 @@ class NN():
 
         # Replace all Nan values with the median values of the columns
         df.fillna(df.median(), inplace=True)
-
+        
+        # Upsampling to handle the Imbalanced Classes
+        
+        # Split the dataframe based on the classes
         df_majority = df[df.Result==1]
         df_minority = df[df.Result==0]
-
+        
+        # Use resampling on the minority class to create more records for the same.
         df_minority_upsampled = resample(df_minority,
                                         replace=True,
                                         n_samples=72,
                                         random_state=42)
         
+        # Concatenate the dataframes of the majority class and upsampled minority class. The two classes are now equally represented
         global df_upsampled
         df_upsampled = pd.concat([df_majority, df_minority_upsampled])
-        return df_upsampled
 
 
     # Sigmoid Function
