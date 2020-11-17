@@ -2,28 +2,30 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.utils import resample
+from sklearn.preprocessing import StandardScaler
+import math
 
 class NN():
     def __init__(self, input_layer, hidden_1, hidden_2, output_layer, iterations=150, learning_rate=0.5):
         self.iterations = iterations
         self.learning_rate = learning_rate
 
-        np.random.seed(57)        
+        np.random.seed(57)
 
         self.weights = {
-            'W1':np.random.rand(hidden_1, input_layer),
-            'W2':np.random.rand(hidden_2, hidden_1),
-            'W3':np.random.rand(output_layer, hidden_2)
+            'W1':np.random.rand(hidden_1, input_layer), # * np.sqrt(2. / hidden_1),
+            'W2':np.random.rand(hidden_2, hidden_1), # * np.sqrt(2. / hidden_2),
+            'W3':np.random.rand(output_layer, hidden_2), # * np.sqrt(2. / output_layer)
         }
-        
+
         self.bias = {
             'BO': np.random.rand(),
             'B1': np.random.rand(),
             'B2': np.random.rand()
         }
-    
+
     def datapreprocessing(self, df):
-        
+
         '''
         df['Age'] = df['Age'].replace(np.NaN, df['Age'].mode()[0])
         df['Weight'] = df['Weight'].replace(np.NaN, df['Weight'].median())
@@ -31,19 +33,23 @@ class NN():
         df['BP'] = df['BP'].replace(np.NaN, df['BP'].median())
         df.dropna(inplace = True)
         '''
+
+        temp_df = pd.read_csv("LBW_Dataset.csv")
+        scaler = StandardScaler().fit(temp_df[['Weight']])
+        temp_df[['Weight']] = scaler.transform(temp_df[['Weight']])
+
         for i in range(len(df)):
-            try:
-                if(df['Weight'][i] > 33):
-                    df['Weight'][i] = 1
+            if(pd.isnull(df['Weight'][i])):
+                df['Weight'][i] = math.ceil(temp_df['Weight'].median())
 
-                else:
-                    df['Weight'][i] = 0
+            elif(df['Weight'][i] > 33):
+                df['Weight'][i] = 1
 
-            except:
-                continue
+            else:
+                df['Weight'][i] = 0
 
         df.fillna(df.median(), inplace=True)
-        
+
         df_majority = df[df.Result==1]
         df_minority = df[df.Result==0]
 
@@ -54,9 +60,9 @@ class NN():
         global df_upsampled
         df_upsampled = pd.concat([df_majority, df_minority_upsampled])
         return df_upsampled
-        
-        
-        
+
+
+
     def sigmoid(self, x):
         return 1/(1 + np.exp(-x))
 
@@ -200,13 +206,13 @@ class NN():
         except:
             print("Division by Zero\n")
 
-obj = NN(5, 3, 3, 1)
-df = pd.read_csv("C:\\Users\\hp\\Desktop\\Studies\\5th Sem\\Machine Intelligence\\Machine-Intelligence-2020-main\\Assignment3\\LBW_Dataset.csv")
+obj = NN(6, 3, 3, 1)
+df = pd.read_csv("LBW_Dataset.csv")
 obj.datapreprocessing(df)
 df = df_upsampled
 
 # Train - Test
-x = df[['Community','Weight','Delivery phase','IFA','Residence']]
+x = df[['Community','Weight','Delivery phase','IFA','Residence','Delivery phase']]
 #x = df[['Community','Weight','HB','IFA','BP','Education','Residence']]
 #x = df[['Weight']]
 y = df[['Result']]
