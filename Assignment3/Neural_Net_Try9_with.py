@@ -15,7 +15,7 @@ class NN():
         self.weights = {
             'W1':np.random.rand(hidden_1, input_layer), # * np.sqrt(2. / hidden_1),
             'W2':np.random.rand(hidden_2, hidden_1), # * np.sqrt(2. / hidden_2),
-            'W3':np.random.rand(output_layer, hidden_2), # * np.sqrt(2. / output_layer)
+            'W3':np.random.rand(output_layer, hidden_2) # * np.sqrt(2. / output_layer)
         }
 
         self.bias = {
@@ -34,7 +34,7 @@ class NN():
         df.dropna(inplace = True)
         '''
 
-        temp_df = pd.read_csv("LBW_Dataset.csv")
+        temp_df = pd.read_csv("C:\\Users\\hp\\Desktop\\Studies\\5th Sem\\Machine Intelligence\\Machine-Intelligence-2020-main\\Assignment3\\LBW_Dataset.csv")
         scaler = StandardScaler().fit(temp_df[['Weight']])
         temp_df[['Weight']] = scaler.transform(temp_df[['Weight']])
 
@@ -68,14 +68,6 @@ class NN():
 
     def sigmoid_derivative(self, x):
         return (np.exp(-x))/((np.exp(-x)+1)**2)
-
-    def softmax(self, x):
-        exps = np.exp(x - x.max())
-        return exps / np.sum(exps, axis=0)
-
-    def softmax_derivative(self, x):
-        exps = np.exp(x - x.max())
-        return exps / np.sum(exps, axis=0) * (1 - exps / np.sum(exps, axis=0))
 
     def fit(self, x_train, y_train, x_test, y_test):
         for iteration in range(self.iterations):
@@ -136,21 +128,23 @@ class NN():
         '''
         predictions = []
         weights = self.weights
+        bias = self.bias
+        
         for x, y in zip(x_val, y_val):
 
             # input layer activations becomes sample
             weights['A0'] = x
 
             # input layer to hidden layer 1
-            weights['Z1'] = np.dot(weights["W1"], weights['A0'])
+            weights['Z1'] = np.dot(weights["W1"], weights['A0']) + bias['BO']
             weights['A1'] = self.sigmoid(weights['Z1'])
 
             # hidden layer 1 to hidden layer 2
-            weights['Z2'] = np.dot(weights["W2"], weights['A1'])
+            weights['Z2'] = np.dot(weights["W2"], weights['A1']) + bias['B1']
             weights['A2'] = self.sigmoid(weights['Z2'])
 
             # hidden layer 2 to output layer
-            weights['Z3'] = np.dot(weights["W3"], weights['A2'])
+            weights['Z3'] = np.dot(weights["W3"], weights['A2']) + bias['B2']
             weights['A3'] = self.sigmoid(weights['Z3'])
 
             predicted = weights['A3']
@@ -207,7 +201,9 @@ class NN():
             print("Division by Zero\n")
 
 obj = NN(6, 3, 3, 1)
-df = pd.read_csv("LBW_Dataset.csv")
+
+df = pd.read_csv("C:\\Users\\hp\\Desktop\\Studies\\5th Sem\\Machine Intelligence\\Machine-Intelligence-2020-main\\Assignment3\\LBW_Dataset.csv")
+
 obj.datapreprocessing(df)
 df = df_upsampled
 
